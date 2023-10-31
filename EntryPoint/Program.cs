@@ -1,6 +1,4 @@
-﻿#undef DEBUG_MODE
-
-using DIContainer;
+﻿using DIContainer;
 using static DITest.Output.CustomConsole;
 using System.Diagnostics.Metrics;
 using static System.Formats.Asn1.AsnWriter;
@@ -21,22 +19,6 @@ internal class Program
         container.AddEntryPoint<MyProgram>(nameof(MyProgram.Run));
 
         container.Run();
-
-#if DEBUG_MODE
-        #region SimpleScopeTest
-        using (var scope = new Scope())
-        {
-            Console.WriteLine($"\u001b[36m[DEBUGSCOPE]\u001b[0m " + "Creating scope...");
-
-            var program = container.GetService<MyProgram>();
-            program.Run();
-
-            Console.WriteLine($"\u001b[36m[DEBUGSCOPE]\u001b[0m " + "Scope is about to be disposed...");
-        }
-
-        Console.WriteLine($"\u001b[36m[DEBUGSCOPE]\u001b[0m " + "Scope has been disposed.");
-        #endregion
-#endif
     }
 }
 
