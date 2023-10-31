@@ -1,4 +1,8 @@
-﻿using DIContainer;
+﻿#undef DEBUG_MODE
+
+using DIContainer;
+using static DITest.Output.CustomConsole;
+using System.Diagnostics.Metrics;
 using static System.Formats.Asn1.AsnWriter;
 
 /// <summary>
@@ -16,26 +20,31 @@ internal class Program
 
         container.AddEntryPoint<MyProgram>(nameof(MyProgram.Run));
 
+        container.Run();
+
+#if DEBUG_MODE
+        #region SimpleScopeTest
         using (var scope = new Scope())
         {
-            Console.WriteLine("Creating scope...");
+            Console.WriteLine($"\u001b[36m[DEBUGSCOPE]\u001b[0m " + "Creating scope...");
 
             var program = container.GetService<MyProgram>();
             program.Run();
 
-            Console.WriteLine("Scope is about to be disposed...");
+            Console.WriteLine($"\u001b[36m[DEBUGSCOPE]\u001b[0m " + "Scope is about to be disposed...");
         }
 
-        Console.WriteLine("Scope has been disposed.");
+        Console.WriteLine($"\u001b[36m[DEBUGSCOPE]\u001b[0m " + "Scope has been disposed.");
+        #endregion
+#endif
     }
 }
 
-
+/// <summary>
+/// Main program class that orchestrates the execution of various IEntity implementations.
+/// </summary>
 public class MyProgram
 {
-    /// <summary>
-    /// Main program class that orchestrates the execution of various IEntity implementations.
-    /// </summary>
     private IEntity[] entity { get; set; }
     public MyProgram(IEntity[] entities)
     {

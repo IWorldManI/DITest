@@ -39,7 +39,7 @@ internal class Semaphore : IEntity
 
         await Task.WhenAll(tasks);
 
-        LogToCustomConsole(counter.GetNextNumber(), ConsoleTypeEnum.Exit, CurrentThreadId, GetFormattedString(ConsoleTypeEnum.Exit));
+        LogToCustomConsole(counter.GetNextNumber(), ConsoleTypeEnum.Exit, CurrentThreadId);
     }
 
     /// <summary>
@@ -47,20 +47,20 @@ internal class Semaphore : IEntity
     /// </summary>
     private async Task Update()
     {
-        LogToCustomConsole(counter.GetNextNumber(),ConsoleTypeEnum.Debug, CurrentThreadId, GetFormattedString(ConsoleTypeEnum.Debug));
+        LogToCustomConsole(counter.GetNextNumber(),ConsoleTypeEnum.Debug, CurrentThreadId);
 
         await semaphore.WaitAsync();
 
         try
         {
-            LogToCustomConsole(counter.GetNextNumber(),ConsoleTypeEnum.Busy, CurrentThreadId, GetFormattedString(ConsoleTypeEnum.Busy));
+            LogToCustomConsole(counter.GetNextNumber(),ConsoleTypeEnum.Busy, CurrentThreadId);
 
             await Task.Delay(2000);
         }
         finally
         {
             semaphore.Release();
-            LogToCustomConsole(counter.GetNextNumber(), ConsoleTypeEnum.Released, CurrentThreadId, GetFormattedString(ConsoleTypeEnum.Released));
+            LogToCustomConsole(counter.GetNextNumber(), ConsoleTypeEnum.Released, CurrentThreadId);
         }
 
         await Task.Yield();
