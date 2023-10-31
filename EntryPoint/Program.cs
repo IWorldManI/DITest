@@ -1,4 +1,5 @@
 ﻿using DIContainer;
+using static System.Formats.Asn1.AsnWriter;
 
 /// <summary>
 /// Entry point of the application that sets up dependency injection and runs the program.
@@ -9,13 +10,23 @@ internal class Program
     {
         Container container = new Container();
         container.AddSingleton<Counter>();
+        container.AddScope<IEntity, Entity2>();
         container.AddTransient<IEntity, Entity1>();
-        container.AddTransient<IEntity, Entity2>();
         container.AddTransient<IEntity, Semaphore>();
 
         container.AddEntryPoint<MyProgram>(nameof(MyProgram.Run));
 
-        container.Run();
+        using (var scope = new Scope())
+        {
+            Console.WriteLine("Creating scope...");
+
+            var program = container.GetService<MyProgram>();
+            program.Run();
+
+            Console.WriteLine("Scope is about to be disposed...");
+        }
+
+        Console.WriteLine("Scope has been disposed.");
     }
 }
 

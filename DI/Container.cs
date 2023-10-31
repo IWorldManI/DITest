@@ -5,6 +5,7 @@
         private Dictionary<Type, InjectionType> _container;
         private Dictionary<Type, List<Type>> _inheritances;
         private Dictionary<Type, object> _singletons;
+        private Dictionary<Type, object> _scopedObjects;
         private Type entryPoint;
         private string entryPointMethod;
 
@@ -13,6 +14,7 @@
             _container = new Dictionary<Type, InjectionType>();
             _inheritances = new Dictionary<Type, List<Type>>();
             _singletons = new Dictionary<Type, object>();
+            _scopedObjects = new Dictionary<Type, object>();
 
         }
         public void AddTransient<T>() where T : class
@@ -46,9 +48,36 @@
         }
 
         public void Run() => entryPoint.GetMethod(entryPointMethod).Invoke(GetService(entryPoint), null);
-        
+
+        public void AddScope<TService, TImplementation>()
+        where TService : class
+        where TImplementation : TService
+        {
+            _container.Add(typeof(TService), InjectionType.Scope);
+            _container.Add(typeof(TImplementation), InjectionType.Scope);
+
+            if (_inheritances.ContainsKey(typeof(TService)))
+            {
+                _inheritances[typeof(TService)].Add(typeof(TImplementation));
+            }
+            else
+            {
+                _inheritances[typeof(TService)] = new List<Type>() { typeof(TImplementation) };
+            }
+        }
+
+        private Dictionary<Type, object> GetCurrentScope()
+        {
+            var currentScopeId = _scopedObjects.Keys.LastOrDefault();
+            if (currentScopeId != null)
+            {
+                return (Dictionary<Type, object>)_scopedObjects[currentScopeId];
+            }
+            return null;
+        }
+
         public T GetService<T>() => (T)GetService(typeof(T));
-        
+
         private object GetService(Type type)
         {
             InjectionType injectionType = _container[type];
@@ -91,7 +120,16 @@
             }
 
             object instance = Activator.CreateInstance(type, args: arguments);
-            
+
+            if (injectionType == InjectionType.Scope)
+            {
+                var currentScope = GetCurrentScope();
+                if (currentScope != null && currentScope.ContainsKey(type))
+                {
+                    return currentScope[type];
+                }
+            }
+
             if (injectionType == InjectionType.Singleton) _singletons[type] = instance;
             return instance;
         }
