@@ -1,13 +1,16 @@
 ﻿using DIContainer;
 
+/// <summary>
+/// Entry point of the application that sets up dependency injection and runs the program.
+/// </summary>
 internal class Program
 {
     static void Main(string[] args)
     {
         Container container = new Container();
         container.AddSingleton<Counter>();
-        container.AddTransient<IEntity, Logger>();
-        container.AddTransient<IEntity, Logger2>();
+        container.AddTransient<IEntity, Entity1>();
+        container.AddTransient<IEntity, Entity2>();
         container.AddTransient<IEntity, Semaphore>();
 
         container.AddEntryPoint<MyProgram>(nameof(MyProgram.Run));
@@ -15,8 +18,13 @@ internal class Program
         container.Run();
     }
 }
+
+
 public class MyProgram
 {
+    /// <summary>
+    /// Main program class that orchestrates the execution of various IEntity implementations.
+    /// </summary>
     private IEntity[] entity { get; set; }
     public MyProgram(IEntity[] entities)
     {
@@ -27,7 +35,7 @@ public class MyProgram
     {
         foreach (var entity in entity)
         {
-            entity.Log($"Started");
+            entity.WakeUp($"Started");
         }
     }
 }

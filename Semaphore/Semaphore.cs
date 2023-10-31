@@ -1,56 +1,87 @@
-﻿using System;
+﻿using DITest.Output;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static DITest.Output.CustomConsole;
 
+/// <summary>
+/// The Semaphore class, implementing the IEntity interface, is designed to simulate working with semaphores and threads.
+/// </summary>
 internal class Semaphore : IEntity
 {
     private Counter counter;
-
-    static SemaphoreSlim semaphore = new SemaphoreSlim(2); // max 2
+    private SemaphoreSlim semaphore;
+    private int CurrentThreadId => Thread.CurrentThread.ManagedThreadId;
 
     public Semaphore(Counter counter)
     {
         this.counter = counter;
+        this.semaphore = new SemaphoreSlim(2);
     }
 
-    private async Task Start()
+    /// <summary>
+    /// Implementation of the WakeUp method from the IEntity interface, simulating the activation of an entity.
+    /// </summary>
+    public async Task WakeUp(string message)
     {
-        // test tasks
+        Start(message).Wait();
+        await Task.Yield();
+    }
+
+    /// <summary>
+    /// Internal Start method that launches multiple tasks to simulate working with threads.
+    /// </summary>
+    private async Task Start(string message)
+    {
         var tasks = new Task[5];
         for (int i = 0; i < 5; i++)
         {
-            tasks[i] = Task.Run(DoWork);
+            tasks[i] = Task.Run(Update);
         }
+
+        await Log(message);
 
         await Task.WhenAll(tasks);
 
-        Console.WriteLine("Работа завершена.");
+        LogToCustomConsole(counter.GetNextNumber(), ConsoleTypeEnum.Exit, CurrentThreadId, GetFormattedString(ConsoleTypeEnum.Exit));
     }
 
-    private async Task DoWork()
+    /// <summary>
+    /// Internal Update method simulating thread work.
+    /// </summary>
+    private async Task Update()
     {
-        Console.WriteLine($"{counter.GetNextNumber()}> Поток {Thread.CurrentThread.ManagedThreadId} создан.");
+        LogToCustomConsole(counter.GetNextNumber(),ConsoleTypeEnum.Debug, CurrentThreadId, GetFormattedString(ConsoleTypeEnum.Debug));
 
         await semaphore.WaitAsync();
 
         try
         {
-            Console.WriteLine($"{counter.GetNextNumber()}> Поток {Thread.CurrentThread.ManagedThreadId} получил доступ к ресурсу и начал работу.");
+            LogToCustomConsole(counter.GetNextNumber(),ConsoleTypeEnum.Busy, CurrentThreadId, GetFormattedString(ConsoleTypeEnum.Busy));
 
             await Task.Delay(2000);
         }
         finally
         {
             semaphore.Release();
-            Console.WriteLine($"{counter.GetNextNumber()}> Поток {Thread.CurrentThread.ManagedThreadId} освободил ресурс.");
+            LogToCustomConsole(counter.GetNextNumber(), ConsoleTypeEnum.Released, CurrentThreadId, GetFormattedString(ConsoleTypeEnum.Released));
         }
+
+        await Task.Yield();
     }
 
-    public void Log(string message)
+    /// <summary>
+    /// Internal Log method for logging messages.
+    /// </summary>
+    private async Task Log(string message)
     {
+        Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"{counter.GetNextNumber()}> {GetType()} {message}");
-        Start().Wait();
+        Console.ResetColor();
+
+        await Task.Yield();
     }
 }

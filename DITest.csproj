@@ -7,8 +7,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="C:\Users\Dev\Desktop\DIContainer\DIContainer\DIContainer.csproj" />
-  </ItemGroup>
-
 </Project>
