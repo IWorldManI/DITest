@@ -83,7 +83,6 @@
                             arrayOfInstance.SetValue(GetService(types[j]),j);
                         }
                         
-                        
                         arguments[i] = arrayOfInstance;
                         continue;
                     }

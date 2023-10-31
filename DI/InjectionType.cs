@@ -2,5 +2,5 @@
 
 internal enum InjectionType
 {
-    Transient, Singleton,
+    Transient, Singleton, Scope
 }

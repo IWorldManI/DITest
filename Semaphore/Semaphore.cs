@@ -1,11 +1,4 @@
-﻿using DITest.Output;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static DITest.Output.CustomConsole;
+﻿using static DITest.Output.CustomConsole;
 
 /// <summary>
 /// The Semaphore class, implementing the IEntity interface, is designed to simulate working with semaphores and threads.
