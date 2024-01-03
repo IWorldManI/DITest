@@ -1,7 +1,4 @@
 ﻿using DIContainer;
-using static DITest.Output.CustomConsole;
-using System.Diagnostics.Metrics;
-using static System.Formats.Asn1.AsnWriter;
 
 /// <summary>
 /// Entry point of the application that sets up dependency injection and runs the program.
